@@ -1,80 +1,5 @@
 #include <iostream>
-#include <vector>
-#include <map>
 using namespace std;
-
-class ResourceAllocationGraph {
-    int processes, resources;
-    vector<vector<int>> adjMatrix;
-    vector<vector<int>> adjList;
-    map<string, int> vertexIndex;
-
-public:
-    ResourceAllocationGraph(int p, int r) {
-        processes = p;
-        resources = r;
-
-        int totalVertices = p + r;
-
-        adjMatrix.resize(totalVertices, vector<int>(totalVertices, 0));
-        adjList.resize(totalVertices);
-
-        // Assign index to processes
-        for (int i = 0; i < p; i++) {
-            vertexIndex["P" + to_string(i)] = i;
-        }
-
-        // Assign index to resources
-        for (int i = 0; i < r; i++) {
-            vertexIndex["R" + to_string(i)] = p + i;
-        }
-    }
-
-    // Add edge in graph
-    void addEdge(string from, string to) {
-        int u = vertexIndex[from];
-        int v = vertexIndex[to];
-
-        adjMatrix[u][v] = 1;
-        adjList[u].push_back(v);
-    }
-
-    // Display adjacency matrix
-    void displayMatrix() {
-        cout << "\nAdjacency Matrix:\n";
-
-        for (int i = 0; i < adjMatrix.size(); i++) {
-            for (int j = 0; j < adjMatrix[i].size(); j++) {
-                cout << adjMatrix[i][j] << " ";
-            }
-            cout << endl;
-        }
-    }
-
-    // Display adjacency list
-    void displayList() {
-        cout << "\nAdjacency List:\n";
-
-        for (int i = 0; i < adjList.size(); i++) {
-
-            // Print process/resource name
-            if (i < processes)
-                cout << "P" << i << " -> ";
-            else
-                cout << "R" << i - processes << " -> ";
-
-            for (int v : adjList[i]) {
-
-                if (v < processes)
-                    cout << "P" << v << " ";
-                else
-                    cout << "R" << v - processes << " ";
-            }
-
-            cout << endl;
-        }
-    }
-};
 
 int main() {
     int p, r;
@@ -85,38 +10,56 @@ int main() {
     cout << "Enter number of resources: ";
     cin >> r;
 
-    ResourceAllocationGraph rag(p, r);
+    int total = p + r;
 
-    int allocEdges, requestEdges;
+    // Adjacency Matrix
+    int graph[20][20] = {0};
 
-    // Allocation edges (Resource -> Process)
-    cout << "\nEnter number of allocation edges: ";
-    cin >> allocEdges;
+    int alloc, req;
 
-    cout << "Enter allocation edges (Resource Process):\n";
+    // Allocation edges
+    cout << "\nEnter number of allocated resources: ";
+    cin >> alloc;
 
-    for (int i = 0; i < allocEdges; i++) {
-        string resource, process;
-        cin >> resource >> process;
+    cout << "Enter Resource -> Process edges\n";
+    cout << "Example: R0 P1\n";
 
-        rag.addEdge(resource, process);
+    for (int i = 0; i < alloc; i++) {
+        string res, pro;
+        cin >> res >> pro;
+
+        int rIndex = (res[1] - '0') + p;
+        int pIndex = pro[1] - '0';
+
+        graph[rIndex][pIndex] = 1;
     }
 
-    // Request edges (Process -> Resource)
+    // Request edges
     cout << "\nEnter number of request edges: ";
-    cin >> requestEdges;
+    cin >> req;
 
-    cout << "Enter request edges (Process Resource):\n";
+    cout << "Enter Process -> Resource edges\n";
+    cout << "Example: P1 R0\n";
 
-    for (int i = 0; i < requestEdges; i++) {
-        string process, resource;
-        cin >> process >> resource;
+    for (int i = 0; i < req; i++) {
+        string pro, res;
+        cin >> pro >> res;
 
-        rag.addEdge(process, resource);
+        int pIndex = pro[1] - '0';
+        int rIndex = (res[1] - '0') + p;
+
+        graph[pIndex][rIndex] = 1;
     }
 
-    rag.displayMatrix();
-    rag.displayList();
+    // Display Matrix
+    cout << "\nResource Allocation Graph (Adjacency Matrix)\n";
+
+    for (int i = 0; i < total; i++) {
+        for (int j = 0; j < total; j++) {
+            cout << graph[i][j] << " ";
+        }
+        cout << endl;
+    }
 
     return 0;
 }
